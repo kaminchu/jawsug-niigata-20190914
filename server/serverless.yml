@@ -1,0 +1,59 @@
+service:
+  name: jawsug-niigata-20190914
+
+frameworkVersion: '>=1.0.0 <2.0.0'
+
+custom:
+  bucketName: ${self:service.name}-${self:provider.stage}
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: ${opt:stage, 'dev'} 
+  region: ${opt:region, 'ap-northeast-1'}
+  profile: default
+  memorySize: 128 
+  logRetentionInDays: 14
+  iamRoleStatements: # IAM role statements so that services can be accessed in the AWS account
+    - Effect: 'Allow'
+      Action:
+        - 's3:ListBucket'
+        - 's3:GetBucket'
+        - 's3:PutBucket'
+      Resource:
+        - 'arn:aws:s3:::${self:custom.bucketName}'
+    
+
+package: # Optional deployment packaging configuration
+  include: # Specify the directories and files which should be included in the deployment package
+    - dist/handler.js
+  exclude: # Specify the directories and files which should be excluded in the deployment package
+    - node_modules/*
+ 
+
+functions:
+  thumbnail:
+    handler: handler.thumbnail
+    name: ${self:provider.stage}-thumbnail
+    description: thumbnail
+    memorySize: 128
+    runtime: nodejs10.x
+    environment:
+      BUCKET_NAME: ${self:custom.bucketName}
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+            - suffix:
+              - .jpg
+              - .png
+
+
+resources:
+  Resources:
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: '${self:custom.bucketName}'
+ 
