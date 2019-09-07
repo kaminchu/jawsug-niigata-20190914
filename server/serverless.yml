@@ -5,27 +5,39 @@ frameworkVersion: '>=1.0.0 <2.0.0'
 
 custom:
   bucketName: ${self:service.name}-${self:provider.stage}
+  layerName: ${self:service.name}-${self:provider.stage}-imagemagick
+
 provider:
   name: aws
   runtime: nodejs10.x
   stage: ${opt:stage, 'dev'} 
   region: ${opt:region, 'ap-northeast-1'}
   profile: default
-  memorySize: 128 
+  memorySize: 128
+  timeout: 10
   logRetentionInDays: 14
   iamRoleStatements: # IAM role statements so that services can be accessed in the AWS account
     - Effect: 'Allow'
       Action:
-        - 's3:ListBucket'
-        - 's3:GetBucket'
-        - 's3:PutBucket'
+        - 's3:ListObject'
+        - 's3:GetObject'
+        - 's3:PutObject'
       Resource:
-        - 'arn:aws:s3:::${self:custom.bucketName}' 
+        - 'arn:aws:s3:::${self:custom.bucketName}'
+        - 'arn:aws:s3:::${self:custom.bucketName}/*'
 
 
 package:
   exclude:
     - node_modules/**
+    - src/**
+    - package.json
+    - tsconfig.json
+    - yarn.lock
+    - imagemagick-aws-lambda-2/**
+    - .cache/**
+    - build_im.sh
+
 functions:
   thumbnail:
     handler: handler.thumbnail
@@ -33,21 +45,19 @@ functions:
     description: thumbnail
     memorySize: 128
     runtime: nodejs10.x
+    layers:
+      - { Ref: ImagemagickLambdaLayer }
     events:
       - s3:
           bucket: '${self:custom.bucketName}'
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
-            - suffix:
-              - .jpg
-              - .png
 
-
-resources:
-  Resources:
-    S3Bucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: '${self:custom.bucketName}'
- 
+layers:
+  imagemagick:
+    path: imagemagick-aws-lambda-2/result
+    name: ${self:custom.layerName}
+    description: for imagemagick
+    compatibleRuntimes:
+      - nodejs10.x

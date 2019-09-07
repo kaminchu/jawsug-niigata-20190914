@@ -16,7 +16,7 @@
     "gm": "^1.23.1"
   },
   "scripts": {
-    "build": "parcel build --target node --bundle-node-modules --out-file handler.js --no-source-maps src/handler.ts",
+    "build": "parcel build --target node --bundle-node-modules --no-source-maps --out-file handler.js -d ./ src/handler.ts",
     "deploy": "sls deploy"
   }
 }
