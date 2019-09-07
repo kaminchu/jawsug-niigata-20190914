@@ -53,6 +53,19 @@ functions:
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
+  api:
+    handler: handler.api
+    name: ${self:provider.stage}-api
+    description: api
+    memorySize: 128
+    runtime: nodejs10.x
+    environment:
+      BUCKET: ${self:custom.bucketName}
+    events:
+      - http:
+          path: "{proxy+}"
+          method: ANY
+          cors: true
 
 layers:
   imagemagick:
