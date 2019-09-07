@@ -9,14 +9,17 @@ const BUKET = process.env.BUKET ? process.env.BUKET : "";
 const signedUrlExpireSeconds = 60 * 5;// 5分
 
 router.get("/", async (_, res) => {
+  console.log("ugoita");
   const objectList = await s3.listObjectsV2({Bucket: BUKET}).promise();
   const objectKeys = objectList.Contents ? objectList.Contents.map(({Key}) => Key) : [];
 
-  const urls = objectKeys.map((key) => {
-    return s3.getSignedUrl("getObject", {
-      Bucket: BUKET,
-      Key: key,
-      Expires: signedUrlExpireSeconds,
+  const urls = objectKeys
+    .filter((key) => key && key.startsWith("resized-"))
+    .map((key) => {
+      return s3.getSignedUrl("getObject", {
+        Bucket: BUKET,
+        Key: key,
+        Expires: signedUrlExpireSeconds,
     });
   });
   res.json(urls);
@@ -31,4 +34,4 @@ router.post("/", async (req, res) => {
   res.redirect(303, url);
 });
 
-export default route;
+export default router;

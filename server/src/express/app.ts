@@ -1,12 +1,19 @@
 import Express from "express";
-import Cors from "cors";
-import awsServerlessExpressMiddleware from "aws-serverless-express/middleware";
 
 import images from "./routes/images";
 
 const app = Express();
-app.use(awsServerlessExpressMiddleware.eventContext());
-app.use(Cors());
-app.get("/images", images);
+
+app.use((_, res, next) => {
+  console.log("running cors");
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept',
+  );
+  next();
+});
+
+app.use("/images", images);
 
 export default app;
