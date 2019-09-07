@@ -1,12 +1,25 @@
 import React from "react";
 
 import Viewer from "../component/organisms/Viewer";
+import ImageRepository from "../api/ImageRepository";
+const imageRepository = new ImageRepository();
 
-const srcs = Array.from({length: 10}, () => "https://placehold.jp/120x80.png");
 const App: React.FC =  () => {
+  const [images, setImages] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    (async () => {
+      const fetchedImages = await imageRepository.findAll();
+      setImages(fetchedImages);
+    })();
+  });
+
+  const handleUpload = (file: File) => {
+    imageRepository.save(file);
+  }
   return (
     <div>
-      <Viewer srcs={srcs} />
+      <Viewer srcs={images} onUpload={handleUpload}/>
     </div>
   );
 };
