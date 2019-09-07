@@ -1,2 +1,6 @@
 .cache
 dist
+
+# terraform
+.terraform
+terraform.tfstate*
