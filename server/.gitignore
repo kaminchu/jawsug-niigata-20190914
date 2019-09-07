@@ -1,0 +1,6 @@
+handler.js*
+.cache
+.serverless
+
+# imagemagick build
+imagemagick-aws-lambda-2
