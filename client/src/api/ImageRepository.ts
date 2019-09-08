@@ -1,5 +1,3 @@
-import {ulid} from "ulid";
-
 export default class ImageRepository {
   uri = "https://qyn2ogqsgl.execute-api.ap-northeast-1.amazonaws.com/dev/images";
 
@@ -19,7 +17,6 @@ export default class ImageRepository {
   async save(file: File): Promise<void> {
     const formdata = new FormData();
     formdata.append("file", file);
-    formdata.append("key", ulid());
     const params = {
       method: "POST",
       headers: {"accept": "multipart/form-data"},

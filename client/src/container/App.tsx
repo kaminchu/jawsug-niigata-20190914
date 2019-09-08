@@ -12,7 +12,7 @@ const App: React.FC =  () => {
       const fetchedImages = await imageRepository.findAll();
       setImages(fetchedImages);
     })();
-  });
+  }, []);
 
   const handleUpload = (file: File) => {
     imageRepository.save(file);
