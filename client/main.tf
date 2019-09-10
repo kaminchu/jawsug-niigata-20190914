@@ -29,6 +29,9 @@ EOF
 }
 
 resource "null_resource" "remove_and_upload_to_s3" {
+  triggers = {
+    build_number = "${timestamp()}"
+  }
   provisioner "local-exec" {
     command = "aws s3 sync ${path.module}/dist s3://${aws_s3_bucket.site.id}"
   }
