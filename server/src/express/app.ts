@@ -13,6 +13,8 @@ app.use((_, res, next) => {
   );
   next();
 });
+app.use(Express.urlencoded({extended: true}));
+app.use(Express.json());
 
 app.use("/images", images);
 

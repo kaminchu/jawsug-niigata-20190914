@@ -2,6 +2,7 @@ import Express from "express";
 const router = Express.Router();
 
 import AWS from "aws-sdk";
+import path from "path";
 import {ulid} from "ulid";
 
 const s3 = new AWS.S3({signatureVersion: "v4"});
@@ -26,13 +27,27 @@ router.get("/", (_, res, next) => {
   })().catch(next);
 });
 
-router.post("/", (req, res) => {
-  const url = s3.getSignedUrl("putObject", {
+router.get("/upload_url", (req, res, next) => {
+  console.log(req);
+  const {srcKey} = req.query;
+  const extname = path.extname(srcKey).toLowerCase();
+  const key = `${ulid()}${extname}`;
+
+  const params = {
     Bucket: BUCKET,
-    Key: ulid(),
+    Fields: {
+      key: `uploads/${key}`
+    },
     Expires: signedUrlExpireSeconds,
+  };
+  s3.createPresignedPost(params, (err, data) => {
+    if(err) {
+      next(err);
+    } else {
+      console.log(data);
+      res.json(data);
+    }
   });
-  res.redirect(303, url);
 });
 
 export default router;

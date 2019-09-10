@@ -75,3 +75,19 @@ layers:
     description: for imagemagick
     compatibleRuntimes:
       - nodejs10.x
+
+
+resources:
+  Resources:
+    S3BucketJawsugniigata20190914dev:
+      Type: AWS::S3::Bucket
+      Properties:
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins: 
+                - "*"
+              AllowedMethods: 
+                - POST
+                - PUT
+              AllowedHeaders: 
+                - "*"

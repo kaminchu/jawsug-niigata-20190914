@@ -4,24 +4,25 @@ export default class ImageRepository {
   async findAll(): Promise<string[]> {
     const response = await fetch(this.uri);
     return await response.json();
-
-    // テストコード
-    // return new Promise<string[]>(resolve => {
-    //   setTimeout(() => {
-    //     const srcs = Array.from({length: 10}, () => "https://placehold.jp/120x80.png");
-    //     resolve(srcs);
-    //   }, 3000);
-    // });
   }
 
   async save(file: File): Promise<void> {
+    const srcKey = decodeURIComponent(file.name.replace(/\+/g, " "));
+    const urlParams = new URLSearchParams();
+    urlParams.append("srcKey", srcKey);
+    const response = await fetch(`${this.uri}/upload_url?${urlParams.toString()}`);
+    const {fields, url} = await response.json();
+
     const formdata = new FormData();
+    Object.entries(fields)
+      .forEach(([key, value]) => formdata.append(key, (value as any)));
     formdata.append("file", file);
+    console.log(formdata.forEach(console.log));
     const params = {
       method: "POST",
       headers: {"accept": "multipart/form-data"},
-      body: formdata
-    }
-    await fetch(this.uri, params);
+      body: formdata,
+    };
+    await fetch(url, params);
   }
 }
