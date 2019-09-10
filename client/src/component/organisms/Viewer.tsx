@@ -6,13 +6,14 @@ type Props = {
   srcs: string[];
   onUpload: () => void;
   onSelectFile: (file: null | File) => void;
+  file: null | File;
 };
 
-const Viewer: React.SFC<Props> = ({srcs, onUpload, onSelectFile}) => {
+const Viewer: React.SFC<Props> = ({srcs, onUpload, onSelectFile, file}) => {
   return (
     <div>
       <ImageSummary srcs={srcs}/>
-      <ImageUploader onUpload={onUpload} onSelectFile={onSelectFile}/>
+      <ImageUploader onUpload={onUpload} onSelectFile={onSelectFile} file={file}/>
     </div>
   );
 };

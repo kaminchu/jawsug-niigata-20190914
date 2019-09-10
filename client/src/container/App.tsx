@@ -21,6 +21,8 @@ const App: React.FC =  () => {
         await imageRepository.save(file);
         setFile(null);
       })();
+    } else {
+      alert("ファイルが選択されていません");
     }
   };
   const handleSelectFile = (file: null | File) => {
@@ -28,7 +30,7 @@ const App: React.FC =  () => {
   };
   return (
     <div>
-      <Viewer srcs={images} onUpload={handleUpload} onSelectFile={handleSelectFile}/>
+      <Viewer srcs={images} onUpload={handleUpload} onSelectFile={handleSelectFile} file={file}/>
     </div>
   );
 };
