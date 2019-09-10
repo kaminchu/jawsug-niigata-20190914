@@ -4,14 +4,15 @@ import ImageUploader from "../molecules/ImageUploader";
 
 type Props = {
   srcs: string[];
-  onUpload: (file: File) => void;
+  onUpload: () => void;
+  onSelectFile: (file: null | File) => void;
 };
 
-const Viewer: React.SFC<Props> = ({srcs, onUpload}) => {
+const Viewer: React.SFC<Props> = ({srcs, onUpload, onSelectFile}) => {
   return (
     <div>
       <ImageSummary srcs={srcs}/>
-      <ImageUploader onUpload={onUpload}/>
+      <ImageUploader onUpload={onUpload} onSelectFile={onSelectFile}/>
     </div>
   );
 };

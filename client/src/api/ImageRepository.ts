@@ -17,7 +17,6 @@ export default class ImageRepository {
     Object.entries(fields)
       .forEach(([key, value]) => formdata.append(key, (value as any)));
     formdata.append("file", file);
-    console.log(formdata.forEach(console.log));
     const params = {
       method: "POST",
       headers: {"accept": "multipart/form-data"},
