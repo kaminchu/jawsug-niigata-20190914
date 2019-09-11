@@ -57,6 +57,8 @@ functions:
     description: thumbnail
     memorySize: 128
     runtime: nodejs10.x
+    environment:
+      TABLE: ${self:custom.tableName}
     layers:
       - { Ref: ImagemagickLambdaLayer }
     events:
@@ -73,7 +75,6 @@ functions:
     runtime: nodejs10.x
     environment:
       BUCKET: ${self:custom.bucketName}
-      TABLE: ${self:custom.tableName}
     events:
       - http:
           path: "{proxy+}"

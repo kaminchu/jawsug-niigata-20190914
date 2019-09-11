@@ -4,6 +4,10 @@ import Viewer from "../component/organisms/Viewer";
 import ImageRepository from "../api/ImageRepository";
 const imageRepository = new ImageRepository();
 
+const ws = new WebSocket("wss://kczvm7ga5b.execute-api.ap-northeast-1.amazonaws.com/dev");
+ws.onopen = () => console.log("open wss");
+ws.onclose = () => console.log("close wss");
+
 const App: React.FC =  () => {
   const [images, setImages] = React.useState<string[]>([]);
   const [isLoading, setIsLoading] =  React.useState<boolean>(false);
@@ -14,6 +18,19 @@ const App: React.FC =  () => {
       setImages(fetchedImages);
     })();
   }, []);
+
+  // socket update
+  ws.onmessage = (ev) => {
+    const data = typeof ev.data === "string" ? ev.data: "";// string only
+    const {type} = JSON.parse(data);
+    if(type === "UPDATE_BUCKET"){
+      (async () => {
+        const fetchedImages = await imageRepository.findAll();
+        setImages(fetchedImages);
+      })();
+    }
+  };
+
 
  
   const handleUploadFile = (file: File) => {

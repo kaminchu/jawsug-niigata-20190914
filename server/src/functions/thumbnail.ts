@@ -78,7 +78,7 @@ function pushUpdateMessage() {
       throw err;
     } else {
       // TODO あとでedpointはどうにかする
-      const apigwManagementApi = new AWS.ApiGatewayManagementApi({endpoint: "https://qyn2ogqsgl.execute-api.ap-northeast-1.amazonaws.com/dev"});
+      const apigwManagementApi = new AWS.ApiGatewayManagementApi({endpoint: "kczvm7ga5b.execute-api.ap-northeast-1.amazonaws.com/dev"});
       
       data && data.Items && data.Items.forEach((item) => {
         const id = item.id.S ? item.id.S : "";
