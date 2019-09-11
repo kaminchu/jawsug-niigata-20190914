@@ -6,8 +6,8 @@ import {S3Handler} from "aws-lambda";
 const im = gm.subClass({ imageMagick: true });
 const s3 = new AWS.S3();
 
-const WIDTH = 120;
-const HEIGHT = 80;
+const WIDTH = 320;
+const HEIGHT = 320;
 const OUTPUT_EXT = "jpg"
 
 export const thumbnail: S3Handler = async (event, context, callback)  => {
@@ -34,7 +34,7 @@ export const thumbnail: S3Handler = async (event, context, callback)  => {
     return;
   }
 
-  const resized = await resize((response.Body as Buffer), WIDTH, HEIGHT, imageType);
+  const resized = await resize((response.Body as Buffer), WIDTH, HEIGHT);
   await s3.putObject({
     Bucket: bucket,
     Key: dstKey,
@@ -45,13 +45,12 @@ export const thumbnail: S3Handler = async (event, context, callback)  => {
   callback(null);
 };
 
-function resize (buffer: Buffer, width: number, height: number, imageType: string) {
+function resize (buffer: Buffer, width: number, height: number) {
   return new Promise<Buffer>((resolve, reject) => {
       im(buffer)
-        .resize(width, height)
+        .resize(width, height, ">")
         .autoOrient()
-        .setFormat(OUTPUT_EXT)
-        .stream((err, stdout) => {
+        .stream(OUTPUT_EXT, (err, stdout) => {
           if (err) {
             reject(err);
           } else {
