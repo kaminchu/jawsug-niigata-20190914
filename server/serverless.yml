@@ -22,6 +22,7 @@ provider:
         - 's3:ListObject'
         - 's3:GetObject'
         - 's3:PutObject'
+        - 's3:ListBucket'
       Resource:
         - 'arn:aws:s3:::${self:custom.bucketName}'
         - 'arn:aws:s3:::${self:custom.bucketName}/*'
@@ -53,6 +54,19 @@ functions:
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
+  api:
+    handler: handler.api
+    name: ${self:provider.stage}-api
+    description: api
+    memorySize: 128
+    runtime: nodejs10.x
+    environment:
+      BUCKET: ${self:custom.bucketName}
+    events:
+      - http:
+          path: "{proxy+}"
+          method: ANY
+          cors: true
 
 layers:
   imagemagick:
@@ -61,3 +75,19 @@ layers:
     description: for imagemagick
     compatibleRuntimes:
       - nodejs10.x
+
+
+resources:
+  Resources:
+    S3BucketJawsugniigata20190914dev:
+      Type: AWS::S3::Bucket
+      Properties:
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins: 
+                - "*"
+              AllowedMethods: 
+                - POST
+                - PUT
+              AllowedHeaders: 
+                - "*"

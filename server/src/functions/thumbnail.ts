@@ -22,7 +22,7 @@ export const thumbnail: S3Handler = async (event, context, callback)  => {
       return;
   }
   const imageType = srcExt.toLowerCase();
-  if (imageType != "jpg" && imageType != "png") {
+  if (imageType != ".jpg" && imageType != ".png") {
       callback(`Unsupported image type: ${imageType}`);
       return;
   }
