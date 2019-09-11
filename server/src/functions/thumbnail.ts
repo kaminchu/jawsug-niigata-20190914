@@ -41,6 +41,9 @@ export const thumbnail: S3Handler = async (event, context, callback)  => {
     Body: resized,
     ContentType: response.ContentType,
   }).promise();
+
+  // 完了通知
+  pushUpdateMessage();
   
   callback(null);
 };
@@ -61,3 +64,36 @@ function resize (buffer: Buffer, width: number, height: number) {
         });
   });
 };
+
+// server push
+const DDB = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+const tableName = process.env.TABLE ? process.env.TABLE : "";
+function pushUpdateMessage() {
+   const scanParams = {
+    TableName: tableName,
+    ProjectionExpression: "id"
+  };
+  DDB.scan(scanParams, (err, data) => {
+    if (err) {
+      throw err;
+    } else {
+      // TODO あとでedpointはどうにかする
+      const apigwManagementApi = new AWS.ApiGatewayManagementApi({endpoint: "https://qyn2ogqsgl.execute-api.ap-northeast-1.amazonaws.com/dev"});
+      
+      data && data.Items && data.Items.forEach((item) => {
+        const id = item.id.S ? item.id.S : "";
+        const posrParams = {
+          Data: JSON.stringify({type: "UPDATE_BUCKET", payload: {}}),
+          ConnectionId: id
+        };
+        apigwManagementApi.postToConnection(posrParams, postErr => {
+          if(postErr && postErr.statusCode === 401){
+            DDB.deleteItem({
+              TableName: tableName,
+              Key: { id: { S: posrParams.ConnectionId } } });
+          }
+        });
+      });
+    }
+  });
+}

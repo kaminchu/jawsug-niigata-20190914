@@ -6,6 +6,7 @@ frameworkVersion: '>=1.0.0 <2.0.0'
 custom:
   bucketName: ${self:service.name}-${self:provider.stage}
   layerName: ${self:service.name}-${self:provider.stage}-imagemagick
+  tableName: ${self:service.name}-${self:provider.stage}
 
 provider:
   name: aws
@@ -26,6 +27,16 @@ provider:
       Resource:
         - 'arn:aws:s3:::${self:custom.bucketName}'
         - 'arn:aws:s3:::${self:custom.bucketName}/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:custom.tableName}"
+
 
 
 package:
@@ -62,11 +73,25 @@ functions:
     runtime: nodejs10.x
     environment:
       BUCKET: ${self:custom.bucketName}
+      TABLE: ${self:custom.tableName}
     events:
       - http:
           path: "{proxy+}"
           method: ANY
           cors: true
+  wsConnectHandler:
+    handler: handler.onconnect
+    environment:
+      TABLE: ${self:custom.tableName}
+    events:
+      - websocket: $connect
+  wsDisconnectHandler:
+    handler: handler.ondisconnect
+    environment:
+      TABLE: ${self:custom.tableName}
+    events:
+      - websocket: $disconnect
+
 
 layers:
   imagemagick:
@@ -91,3 +116,18 @@ resources:
                 - PUT
               AllowedHeaders: 
                 - "*"
+    DynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}
