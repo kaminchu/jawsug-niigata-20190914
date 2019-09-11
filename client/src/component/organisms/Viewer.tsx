@@ -1,19 +1,20 @@
 import React from "react";
 import ImageSummary from "../molecules/ImageSummary";
-import ImageUploader from "../molecules/ImageUploader";
+import UploadFileButton from "../atoms/UploadFileButton";
 
 type Props = {
   srcs: string[];
-  onUpload: () => void;
-  onSelectFile: (file: null | File) => void;
-  file: null | File;
+  onUploadFile: (file: File) => void;
+  isLoading?: boolean;
 };
 
-const Viewer: React.SFC<Props> = ({srcs, onUpload, onSelectFile, file}) => {
+const Viewer: React.SFC<Props> = ({srcs, onUploadFile, isLoading}) => {
   return (
     <div>
       <ImageSummary srcs={srcs}/>
-      <ImageUploader onUpload={onUpload} onSelectFile={onSelectFile} file={file}/>
+      <div style={{position: "fixed", bottom: "16px", right: "16px"}}>
+      <UploadFileButton onUploadFile={onUploadFile} isLoading={isLoading}/>
+      </div>
     </div>
   );
 };
